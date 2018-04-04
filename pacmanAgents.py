@@ -65,7 +65,10 @@ class RectangularRoomCleaner(Agent):
         right = Directions.RIGHT[current]
 
         if current == Directions.STOP:
-            current = Directions.WEST
+            if Directions.WEST not in legal:
+                current = Directions.NORTH
+            else:
+                current = Directions.WEST
 
         # Turn south when hitting a wall
         if current not in legal and left in legal and right in legal:
@@ -79,9 +82,13 @@ class RectangularRoomCleaner(Agent):
         if current == Directions.SOUTH and left not in legal and right in legal:
             return right
 
-        # Turn right when hitting a corner
+        # Turn when hitting a corner
         if current not in legal and (left not in legal or right not in legal):
-            return right if right in legal else left
+            # Reverse if cannot turn
+            if left not in legal and right not in legal:
+                return Directions.REVERSE[current]
+            else:
+                return right if right in legal else left
 
         # Go straight if possible
         if current in legal:
