@@ -81,7 +81,7 @@ class RectangularRoomCleaner(Agent):
 
         # Turn right when hitting a corner
         if current not in legal and (left not in legal or right not in legal):
-            return right
+            return right if right in legal else left
 
         # Go straight if possible
         if current in legal:
