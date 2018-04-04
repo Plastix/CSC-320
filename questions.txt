@@ -1,0 +1,15 @@
+Question 1: What kind of agents are the GoWestAgent and the LeftTurnAgent? Simple reflex agents, model-based reflex
+agents, ...? Explain. (Write down your answers in an electronic document that you can submit with your code.)
+
+Both of these agents are simple reflex agents. The GoWestAgent only uses the current precept. It does not remember any
+information about the world. This agent goes west until it is obstructed and then stops. Similarly, the LeftTurnAgent
+turns left at every opportunity and only uses the current precept to make sure that it can turn left.
+
+
+
+Question 2: Do the GoWestAgent and the LeftTurnAgent behave rationally in this kind of environment? (Remember, the
+erformance measure is to eat as much food as possible.)
+
+Neither GoWestAgent nor LeftTurnAgent are rational. With rectangular rooms, GoWestAgent will hit the left wall stop and
+will eat anymore food. Without any obstacles, LeftTurnAgent will move the pacman in a circle (continuously turning left)
+which will eat four food. Both of these agents will not explore the entire room and do not eat all the food.
