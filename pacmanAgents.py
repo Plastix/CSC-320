@@ -19,7 +19,7 @@ from pacman import Directions
 from game import Agent
 import random
 
-DIRECTION_LIST = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
+DIRECTION_LIST = [Directions.WEST, Directions.EAST, Directions.NORTH, Directions.SOUTH]
 
 
 class GoWestAgent(Agent):
@@ -67,10 +67,8 @@ class RectangularRoomCleaner(Agent):
         right = Directions.RIGHT[current]
 
         if current == Directions.STOP:
-            for dir in [Directions.WEST, Directions.EAST, Directions.NORTH, Directions.SOUTH]:
-                if dir in legal:
-                    current = dir
-                    break
+            moves = list(filter(lambda move: move in legal, DIRECTION_LIST))
+            current = moves[0] if moves else current
 
         if current == Directions.SOUTH:
             # Turn east after hitting west wall
