@@ -118,3 +118,9 @@ class RandomizedRoomCleaner(Agent):
 
         # Randomly choose between legal moves. We will have at least one!
         return random.choice(list(filter(lambda move: move in legal, DIRECTION_LIST)))
+
+
+class ModelBasedRoomCleaner(Agent):
+    def getAction(self, game_state):
+        # TODO
+        return Directions.STOP

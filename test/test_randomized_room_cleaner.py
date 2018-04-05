@@ -4,9 +4,9 @@ import pacman
 
 class TestRandomizedRoomCleaner(unittest.TestCase):
     layouts = [
-        ['rectangularRoomWithObstacles-1'],
-        ['rectangularRoom-1'],
-        ['rectangularRoom-2'],
+        'rectangularRoomWithObstacles-1',
+        'rectangularRoom-1',
+        'rectangularRoom-2',
     ]
 
     num_games = 5
@@ -32,8 +32,8 @@ class TestRandomizedRoomCleaner(unittest.TestCase):
     @staticmethod
     def setup_tests():
         for test in TestRandomizedRoomCleaner.layouts:
-            test_name = 'test_%s' % test[0]
-            func = TestRandomizedRoomCleaner.generate_test(test[0])
+            test_name = 'test_%s' % test
+            func = TestRandomizedRoomCleaner.generate_test(test)
             setattr(TestRandomizedRoomCleaner, test_name, func)
 
 

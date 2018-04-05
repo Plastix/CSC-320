@@ -2,21 +2,19 @@ import unittest
 import pacman
 
 
-class TestRectangularRoomCleaner(unittest.TestCase):
+class TestModelRoomCleaner(unittest.TestCase):
     layouts = [
         'rectangularRoom-1',
         'rectangularRoom-2',
-        'rectangularRoom-3',
-        'rectangularRoom-4',
-        'rectangularRoom-5',
-        'rectangularRoom-6',
-        'rectangularRoom-7'
+        'rectangularRoomWithObstacles-1',
+        'mediumSearch',
     ]
 
     @staticmethod
     def generate_test(layout):
+        @unittest.skip("TODO Implement ModelBasedRoomCleaner")
         def test(self):
-            args = pacman.readCommand(['-p', 'RectangularRoomCleaner',
+            args = pacman.readCommand(['-p', 'ModelBasedRoomCleaner',
                                        '-l', layout,
                                        '-q',
                                        '--frameTime', '0',
@@ -28,12 +26,12 @@ class TestRectangularRoomCleaner(unittest.TestCase):
 
     @staticmethod
     def setup_tests():
-        for test in TestRectangularRoomCleaner.layouts:
+        for test in TestModelRoomCleaner.layouts:
             test_name = 'test_%s' % test
-            func = TestRectangularRoomCleaner.generate_test(test)
-            setattr(TestRectangularRoomCleaner, test_name, func)
+            func = TestModelRoomCleaner.generate_test(test)
+            setattr(TestModelRoomCleaner, test_name, func)
 
 
-TestRectangularRoomCleaner.setup_tests()
+TestModelRoomCleaner.setup_tests()
 if __name__ == '__main__':
     unittest.main()
