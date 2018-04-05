@@ -5,6 +5,8 @@ import pacman
 class TestRandomizedRoomCleaner(unittest.TestCase):
     layouts = [
         ['rectangularRoomWithObstacles-1'],
+        ['rectangularRoom-1'],
+        ['rectangularRoom-2'],
     ]
 
     num_games = 5

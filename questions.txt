@@ -13,3 +13,19 @@ erformance measure is to eat as much food as possible.)
 Neither GoWestAgent nor LeftTurnAgent are rational. With rectangular rooms, GoWestAgent will hit the left wall stop and
 will eat anymore food. Without any obstacles, LeftTurnAgent will move the pacman in a circle (continuously turning left)
 which will eat four food. Both of these agents will not explore the entire room and do not eat all the food.
+
+
+Question 3: Is it possible to build a deterministic simple reflex agent that eats all food in this room?
+
+Yes. The RectangularRoomCleaner agent may get stuck in a loop depending on the placement of the obstacles in the room.
+We can randomize some of the actions in order to avoid these looping patterns. One such agent could randomly pick
+between all legal moves at every timestamp. Given enough time, it will eat all the food in the room but is not very
+efficient.
+
+Question 4: Describe an environment in which your randomized agent would perform poorly.
+
+My randomized agent moves straight if legal with 50% chance. Otherwise it randomly selects between the remaining legal
+moves without stopping. This agent performs badly on an environment with many obstacles and narrow passage ways such
+as mediumSearch. Since it hits walls frequently in this environment it is randomly choosing actions which leads to a lot
+of backtracking.
+

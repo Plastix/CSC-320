@@ -99,14 +99,22 @@ class RectangularRoomCleaner(Agent):
 
 
 class RandomizedRoomCleaner(Agent):
+    """
+    A randomized simple-reflex agent. Continues straight with a 50% chance as long as going straight is legal. Else,
+    it randomly picks between the remaining legal moves without stopping.
+    """
+
     def getAction(self, game_state):
         legal = game_state.getLegalPacmanActions()
+        current = game_state.getPacmanState().getDirection()
 
+        # Stop if we only have one legal move (Stop)
         if len(legal) == 1:
             return Directions.STOP
 
-        current = random.choice(DIRECTION_LIST)
-        while current not in legal:
-            current = random.choice(DIRECTION_LIST)
+        # Continue straight with 50% chance as long as it is legal
+        if current != Directions.STOP and bool(random.getrandbits(1)) and current in legal:
+            return current
 
-        return current
+        # Randomly choose between legal moves. We will have at least one!
+        return random.choice(list(filter(lambda move: move in legal, DIRECTION_LIST)))
