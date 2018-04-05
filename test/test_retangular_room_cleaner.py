@@ -6,7 +6,11 @@ class TestRectangularRoomCleaner(unittest.TestCase):
     layouts = [
         ['rectangularRoom-1'],
         ['rectangularRoom-2'],
-        ['rectangularRoom-3']
+        ['rectangularRoom-3'],
+        ['rectangularRoom-4'],
+        ['rectangularRoom-5'],
+        ['rectangularRoom-6'],
+        ['rectangularRoom-7']
     ]
 
     @staticmethod
