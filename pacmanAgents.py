@@ -19,6 +19,8 @@ from pacman import Directions
 from game import Agent
 import random
 
+DIRECTION_LIST = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
+
 
 class GoWestAgent(Agent):
     """An agent that goes West until it can't."""
@@ -67,31 +69,44 @@ class RectangularRoomCleaner(Agent):
         if current == Directions.STOP:
             for dir in [Directions.WEST, Directions.EAST, Directions.NORTH, Directions.SOUTH]:
                 if dir in legal:
-                    return dir
+                    current = dir
+                    break
 
-        # Turn south when hitting a wall
-        if current not in legal and left in legal and right in legal:
-            return left if current == Directions.WEST else right
+        if current == Directions.SOUTH:
+            # Turn east after hitting west wall
+            if left in legal and right not in legal:
+                return left
+            # Turn west after hitting east wall
+            elif left not in legal and right in legal:
+                return right
 
-        # Turn east after hitting west wall
-        if current == Directions.SOUTH and left in legal and right not in legal:
-            return left
-
-        # Turn west after hitting east wall
-        if current == Directions.SOUTH and left not in legal and right in legal:
-            return right
-
-        # Turn when hitting a corner
-        if current not in legal and (left not in legal or right not in legal):
-            # Reverse if cannot turn
-            if left not in legal and right not in legal:
-                return Directions.REVERSE[current]
-            else:
-                return right if right in legal else left
-
-        # Go straight if possible
-        if current in legal:
+        if current not in legal:
+            # Always turn south when hitting a wall
+            if left in legal and right in legal:
+                if current == Directions.WEST:
+                    return left
+                else:
+                    return right
+            # Turn or reverse when hitting a corner
+            elif left in legal:
+                return left
+            elif right in legal:
+                return right
+            return Directions.REVERSE[current]
+        else:
+            # Go straight if possible
             return current
 
-        # Fail-safe to stop errors
-        return Directions.STOP
+
+class RandomizedRoomCleaner(Agent):
+    def getAction(self, game_state):
+        legal = game_state.getLegalPacmanActions()
+
+        if len(legal) == 1:
+            return Directions.STOP
+
+        current = random.choice(DIRECTION_LIST)
+        while current not in legal:
+            current = random.choice(DIRECTION_LIST)
+
+        return current

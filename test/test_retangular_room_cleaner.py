@@ -16,7 +16,11 @@ class TestRectangularRoomCleaner(unittest.TestCase):
     @staticmethod
     def generate_test(layout):
         def test(self):
-            args = pacman.readCommand(['-p', 'RectangularRoomCleaner', '-l', layout, '-q'])
+            args = pacman.readCommand(['-p', 'RectangularRoomCleaner',
+                                       '-l', layout,
+                                       '-q',
+                                       '--frameTime', '0',
+                                       '--timeout', '1'])
             games = pacman.runGames(**args)
             self.assertTrue(games[0].state.isWin())
 
