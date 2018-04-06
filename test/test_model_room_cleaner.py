@@ -12,7 +12,6 @@ class TestModelRoomCleaner(unittest.TestCase):
 
     @staticmethod
     def generate_test(layout):
-        @unittest.skip("TODO Implement ModelBasedRoomCleaner")
         def test(self):
             args = pacman.readCommand(['-p', 'ModelBasedRoomCleaner',
                                        '-l', layout,

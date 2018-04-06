@@ -119,6 +119,58 @@ class RandomizedRoomCleaner(Agent):
 
 
 class ModelBasedRoomCleaner(Agent):
+    """
+    A model agent that traverses the room in a depth-first pattern.
+    """
+
+    movements_x = {
+        Directions.NORTH: 0,
+        Directions.SOUTH: 0,
+        Directions.EAST: 1,
+        Directions.WEST: -1,
+        Directions.STOP: 0
+    }
+
+    movements_y = {
+        Directions.NORTH: 1,
+        Directions.SOUTH: -1,
+        Directions.EAST: 0,
+        Directions.WEST: 0,
+        Directions.STOP: 0
+    }
+
+    def __init__(self, index=0):
+        super().__init__(index)
+        self.x = 0
+        self.y = 0
+        self.explored = set()
+        self.moves = []
+
     def getAction(self, game_state):
-        # TODO
-        return Directions.STOP
+        legal = game_state.getLegalPacmanActions()
+        legal.remove(Directions.STOP)
+
+        unexplored = list(filter(lambda move: not self.is_explored(move), legal))
+
+        if unexplored:
+            action = unexplored.pop()
+            self.update_model(action)
+            return action
+        else:
+            action = Directions.REVERSE[self.moves.pop()]
+            self.update_model(action, backtrack=True)
+            return action
+
+    def update_model(self, action, backtrack=False):
+        self.explored.add((self.x, self.y))
+
+        self.x += ModelBasedRoomCleaner.movements_x[action]
+        self.y += ModelBasedRoomCleaner.movements_y[action]
+
+        if not backtrack:
+            self.moves.append(action)
+
+    def is_explored(self, action):
+        x = self.x + ModelBasedRoomCleaner.movements_x[action]
+        y = self.y + ModelBasedRoomCleaner.movements_y[action]
+        return (x, y) in self.explored
