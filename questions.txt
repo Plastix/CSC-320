@@ -31,3 +31,9 @@ of backtracking.
 
 Question 5: Is your agent rational given the above performance measure? Is it rational if we modify the performance to
 penalize each movement?
+
+My model-based agent aims to explore every unexplored cell of the map which it can access from the start location. It
+does this by moving in a depth-first search pattern and begins backtracking once it hits a dead end of any unexplored
+cells. With respect to the original performance metric, this is agent is rational because it will eventually find all
+food and not get stuck in any loops. If the performance metric penalizes each movement then this agent is no longer
+rational because it may do a lot of needless backtracking and may not taken the shortest path backwards.
