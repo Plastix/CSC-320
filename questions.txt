@@ -29,3 +29,5 @@ moves without stopping. This agent performs badly on an environment with many ob
 as mediumSearch. Since it hits walls frequently in this environment it is randomly choosing actions which leads to a lot
 of backtracking.
 
+Question 5: Is your agent rational given the above performance measure? Is it rational if we modify the performance to
+penalize each movement?

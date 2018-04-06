@@ -6,8 +6,10 @@ class TestModelRoomCleaner(unittest.TestCase):
     layouts = [
         'rectangularRoom-1',
         'rectangularRoom-2',
+        'rectangularRoom-3',
         'rectangularRoomWithObstacles-1',
         'mediumSearch',
+        'mediumSafeSearch',
     ]
 
     @staticmethod

@@ -104,18 +104,19 @@ class RandomizedRoomCleaner(Agent):
 
     def getAction(self, game_state):
         legal = game_state.getLegalPacmanActions()
-        current = game_state.getPacmanState().getDirection()
+        legal.remove(Directions.STOP)
 
-        # Stop if we only have one legal move (Stop)
-        if len(legal) == 1:
+        # Stop if we have no moves
+        if not legal:
             return Directions.STOP
 
         # Continue straight with 50% chance as long as it is legal
+        current = game_state.getPacmanState().getDirection()
         if current != Directions.STOP and bool(random.getrandbits(1)) and current in legal:
             return current
 
         # Randomly choose between legal moves. We will have at least one!
-        return random.choice(list(filter(lambda move: move in legal, DIRECTION_LIST)))
+        return random.choice(legal)
 
 
 class ModelBasedRoomCleaner(Agent):
@@ -149,17 +150,16 @@ class ModelBasedRoomCleaner(Agent):
     def getAction(self, game_state):
         legal = game_state.getLegalPacmanActions()
         legal.remove(Directions.STOP)
-
         unexplored = list(filter(lambda move: not self.is_explored(move), legal))
 
         if unexplored:
             action = unexplored.pop()
             self.update_model(action)
-            return action
         else:
             action = Directions.REVERSE[self.moves.pop()]
             self.update_model(action, backtrack=True)
-            return action
+
+        return action
 
     def update_model(self, action, backtrack=False):
         self.explored.add((self.x, self.y))
