@@ -1,3 +1,7 @@
+Aidan Pieper
+CSC 320
+4/7/18
+
 Question 1: What kind of agents are the GoWestAgent and the LeftTurnAgent? Simple reflex agents, model-based reflex
 agents, ...? Explain. (Write down your answers in an electronic document that you can submit with your code.)
 
