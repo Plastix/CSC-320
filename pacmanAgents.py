@@ -121,7 +121,7 @@ class RandomizedRoomCleaner(Agent):
 
 class ModelBasedRoomCleaner(Agent):
     """
-    A model agent that traverses the room in a depth-first pattern.
+    A model-based reflex agent that traverses the room in a depth-first pattern.
     """
 
     movements_x = {
