@@ -74,6 +74,28 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
+class SearchNode(object):
+    """
+    Class which represents a node in a search tree
+    """
+
+    def __init__(self, parent, state) -> None:
+        super().__init__()
+        self.parent = parent
+        self.state = state[0]
+        self.action = state[1]
+        self.stepCost = state[2]
+
+        if parent is None:
+            self.pathCost = self.stepCost
+        else:
+            self.pathCost = parent.pathCost + self.stepCost
+
+
+def get_start_search_node(problem):
+    return SearchNode(None, (problem.getStartState(), None, 0))
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -88,8 +110,32 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.Stack()
+    frontier.push(get_start_search_node(problem))
+    explored = set()
+    goal = None
+
+    while not frontier.isEmpty():
+        leaf = frontier.pop()
+        state = leaf.state
+        if problem.isGoalState(state):
+            goal = leaf
+            break
+
+        if state not in explored:
+            explored.add(state)
+            for successor in problem.getSuccessors(state):
+                frontier.push(SearchNode(leaf, successor))
+
+    path = []
+    if goal:
+        while goal:
+            if goal.parent:  # Don't add root node because it doesn't have an action
+                path.append(goal.action)
+            goal = goal.parent
+        path.reverse()
+
+    return path
 
 
 def breadthFirstSearch(problem):
