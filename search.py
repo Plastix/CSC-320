@@ -96,32 +96,33 @@ def get_start_search_node(problem):
     return SearchNode(None, (problem.getStartState(), None, 0))
 
 
+def get_path(search_node):
+    path = []
+    if search_node:
+        while search_node:
+            if search_node.parent:  # Don't add root node because it doesn't have an action
+                path.append(search_node.action)
+            search_node = search_node.parent
+        path.reverse()
+    return path
+
+
 def graph_search(problem, frontier):
     frontier.push(get_start_search_node(problem))
     explored = set()
-    goal = None
 
     while not frontier.isEmpty():
         leaf = frontier.pop()
         state = leaf.state
         if problem.isGoalState(state):
-            goal = leaf
-            break
+            return get_path(leaf)
 
         if state not in explored:
             explored.add(state)
             for successor in problem.getSuccessors(state):
                 frontier.push(SearchNode(leaf, successor))
 
-    path = []
-    if goal:
-        while goal:
-            if goal.parent:  # Don't add root node because it doesn't have an action
-                path.append(goal.action)
-            goal = goal.parent
-        path.reverse()
-
-    return path
+    return []
 
 
 def depthFirstSearch(problem):
@@ -148,8 +149,7 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return graph_search(problem, util.PriorityQueue())
 
 
 def nullHeuristic(state, problem=None):
