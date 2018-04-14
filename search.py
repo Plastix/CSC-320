@@ -91,6 +91,9 @@ class SearchNode(object):
         else:
             self.pathCost = parent.pathCost + self.stepCost
 
+    def __eq__(self, o) -> bool:
+        return self.state == o.state
+
 
 def get_start_search_node(problem):
     return SearchNode(None, (problem.getStartState(), None, 0))
@@ -125,19 +128,29 @@ def graph_search(problem, frontier):
     return []
 
 
+def graph_search_priority(problem, priority_func):
+    frontier = util.PriorityQueue()
+    start = get_start_search_node(problem)
+    frontier.push(start, priority_func(start))
+    explored = set()
+
+    while not frontier.isEmpty():
+        leaf = frontier.pop()
+        state = leaf.state
+        if problem.isGoalState(state):
+            return get_path(leaf)
+
+        explored.add(state)
+        for successor in map(lambda tup: SearchNode(leaf, tup), problem.getSuccessors(state)):
+            if successor.state not in explored:
+                frontier.update(successor, priority_func(successor))
+
+    return []
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     return graph_search(problem, util.Stack())
 
@@ -149,7 +162,7 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    return graph_search(problem, util.PriorityQueue())
+    return graph_search_priority(problem, lambda node: node.stepCost)
 
 
 def nullHeuristic(state, problem=None):
