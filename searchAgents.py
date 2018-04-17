@@ -38,7 +38,6 @@ import time
 
 import search
 import util
-import math
 from game import Actions
 from game import Agent
 from game import Directions
@@ -376,7 +375,7 @@ def cornersHeuristic(state, problem):
     admissible (as well as consistent).
     """
     corners = problem.corners  # These are the corner coordinates
-    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    # walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
     position = state[0]
     goals = state[1]
@@ -385,12 +384,16 @@ def cornersHeuristic(state, problem):
     if problem.isGoalState(state):
         return 0
 
-    return min(map(lambda corner: util.manhattanDistance(position, corner[1]),
-                   filter(lambda corner: not corner[0], zip(goals, corners))))
+    dist = 0
+    current = position
+    unexplored = list(filter(lambda corn: not corn[0], zip(goals, corners)))
+    while unexplored:
+        unexplored = sorted(unexplored, key=lambda item: util.manhattanDistance(current, item[1]))
+        corner = unexplored.pop(0)[1]
+        dist += util.manhattanDistance(current, corner)
+        current = corner
 
-#
-# def dist(pt1, pt2):
-#     return math.sqrt(math.pow(pt2[0] - pt1[0], 2) + math.pow(pt2[1] - pt1[1], 2))
+    return dist
 
 
 class AStarCornersAgent(SearchAgent):
