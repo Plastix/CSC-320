@@ -38,6 +38,7 @@ import time
 
 import search
 import util
+import math
 from game import Actions
 from game import Agent
 from game import Directions
@@ -381,13 +382,13 @@ def cornersHeuristic(state, problem):
     goals = state[1]
 
     # We are at a goal
-    if position in corners:
+    if problem.isGoalState(state):
         return 0
 
     return min(map(lambda corner: util.manhattanDistance(position, corner[1]),
                    filter(lambda corner: not corner[0], zip(goals, corners))))
 
-
+#
 # def dist(pt1, pt2):
 #     return math.sqrt(math.pow(pt2[0] - pt1[0], 2) + math.pow(pt2[1] - pt1[1], 2))
 
