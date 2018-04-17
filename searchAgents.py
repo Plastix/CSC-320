@@ -375,10 +375,8 @@ def cornersHeuristic(state, problem):
     admissible (as well as consistent).
     """
     corners = problem.corners  # These are the corner coordinates
-    # walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
-
-    position = state[0]
-    goals = state[1]
+    position = state[0]  # Current pacman position
+    goals = state[1]  # Goals we have visited
 
     # We are at a goal
     if problem.isGoalState(state):
@@ -386,7 +384,8 @@ def cornersHeuristic(state, problem):
 
     dist = 0
     current = position
-    unexplored = list(filter(lambda corn: not corn[0], zip(goals, corners)))
+    # Filter out corners we have already visited
+    unexplored = list(filter(lambda zipped: not zipped[0], zip(goals, corners)))
     while unexplored:
         unexplored = sorted(unexplored, key=lambda item: util.manhattanDistance(current, item[1]))
         corner = unexplored.pop(0)[1]
