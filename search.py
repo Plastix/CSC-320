@@ -128,26 +128,6 @@ def graph_search(problem, frontier):
     return []
 
 
-def graph_search_priority(problem, priority_func):
-    frontier = util.PriorityQueue()
-    start = get_start_search_node(problem)
-    frontier.push(start, priority_func(start))
-    explored = set()
-
-    while not frontier.isEmpty():
-        leaf = frontier.pop()
-        state = leaf.state
-        if problem.isGoalState(state):
-            return get_path(leaf)
-
-        explored.add(state)
-        for successor in map(lambda tup: SearchNode(leaf, tup), problem.getSuccessors(state)):
-            if successor.state not in explored:
-                frontier.update(successor, priority_func(successor))
-
-    return []
-
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -162,7 +142,7 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    return graph_search_priority(problem, lambda node: node.pathCost)
+    return graph_search(problem, util.PriorityQueueWithFunction(lambda node: node.pathCost))
 
 
 def nullHeuristic(state, problem=None):
@@ -176,7 +156,8 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    return graph_search_priority(problem, lambda node: node.pathCost + heuristic(node.state, problem))
+    return graph_search(problem, util.PriorityQueueWithFunction(
+        lambda node: node.pathCost + heuristic(node.state, problem)))
 
 
 # Abbreviations
