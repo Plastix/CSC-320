@@ -498,7 +498,12 @@ def foodHeuristic(state, problem):
     if not food_count:
         return 0
 
-    return max(map(lambda food: util.manhattanDistance(food, position), food_grid.asList()))
+    sorted_food = sorted(map(lambda food: (util.manhattanDistance(food, position), food), food_grid.asList()),
+                         key=lambda pair: pair[0])
+
+    farthest = sorted_food.pop()[1]
+
+    return mazeDistance(position, farthest, problem.startingGameState)
 
 
 class ClosestDotSearchAgent(SearchAgent):
