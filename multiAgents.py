@@ -13,6 +13,7 @@
 
 
 import random
+import sys
 
 import util
 from game import Agent
@@ -108,6 +109,11 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 
+PACMAN_AGENT = 0
+MAX_INT = sys.maxsize
+MIN_INT = -sys.maxsize - 1
+
+
 class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
@@ -130,8 +136,46 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.minimax(gameState)
+
+    def minimax(self, state):
+        next_agent = 1 % state.getNumAgents()
+        legal_actions = state.getLegalActions(PACMAN_AGENT)
+        depth = 0
+        sorted_moves = sorted(
+            map(lambda a: (self.value(state.generateSuccessor(PACMAN_AGENT, a), next_agent, depth), a), legal_actions),
+            key=lambda item: item[0])
+
+        best_value, best_action = sorted_moves.pop()
+        return best_action
+
+    def is_terminal_state(self, state, depth):
+        return depth >= self.depth or state.isWin() or state.isLose()
+
+    def value(self, state, agent, depth):
+        if self.is_terminal_state(state, depth):
+            return self.evaluationFunction(state)
+
+        if agent == PACMAN_AGENT:
+            return self.max_value(state, agent, depth)
+        else:
+            return self.min_value(state, agent, depth)
+
+    def max_value(self, state, agent, depth):
+        v = MIN_INT
+        for successor in map(lambda a: state.generateSuccessor(agent, a), state.getLegalActions(agent)):
+            next_agent = (agent + 1) % state.getNumAgents()
+            next_depth = depth + 1
+            v = max(v, self.value(successor, next_agent, next_depth))
+        return v
+
+    def min_value(self, state, agent, depth):
+        v = MAX_INT
+        for successor in map(lambda a: state.generateSuccessor(agent, a), state.getLegalActions(agent)):
+            next_agent = (agent + 1) % state.getNumAgents()
+            next_depth = depth + 1 if next_agent == PACMAN_AGENT else depth
+            v = min(v, self.value(successor, next_agent, next_depth))
+        return v
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
