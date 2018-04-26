@@ -245,8 +245,45 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expectimax(gameState)
+
+    def expectimax(self, state):
+        next_agent = 1 % state.getNumAgents()
+        legal_actions = state.getLegalActions(PACMAN_AGENT)
+        depth = 0
+        best_value, best_action = max(
+            map(lambda a: (self.value(state.generateSuccessor(PACMAN_AGENT, a), next_agent, depth), a), legal_actions),
+            key=lambda item: item[0])
+        return best_action
+
+    def is_terminal_state(self, state, depth):
+        return depth >= self.depth or state.isWin() or state.isLose()
+
+    def value(self, state, agent, depth):
+        if self.is_terminal_state(state, depth):
+            return self.evaluationFunction(state)
+
+        if agent == PACMAN_AGENT:
+            return self.max_value(state, agent, depth)
+        else:
+            return self.min_value(state, agent, depth)
+
+    def max_value(self, state, agent, depth):
+        v = MIN_INT
+        for successor in map(lambda a: state.generateSuccessor(agent, a), state.getLegalActions(agent)):
+            next_agent = (agent + 1) % state.getNumAgents()
+            v = max(v, self.value(successor, next_agent, depth))
+        return v
+
+    def min_value(self, state, agent, depth):
+        v = 0
+        legal_moves = state.getLegalActions(agent)
+        num_moves = max(len(legal_moves), 1)
+        for successor in map(lambda a: state.generateSuccessor(agent, a), legal_moves):
+            next_agent = (agent + 1) % state.getNumAgents()
+            next_depth = depth + 1 if next_agent == PACMAN_AGENT else depth
+            v += self.value(successor, next_agent, next_depth) * (1 / num_moves)
+        return v
 
 
 def betterEvaluationFunction(currentGameState):
