@@ -298,8 +298,18 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    position = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    ghost_poses = currentGameState.getGhostPositions()
+
+    try:
+        closest_food = max(min(map(lambda f: util.manhattanDistance(position, f), food.asList())), 1)
+    except ValueError:
+        closest_food = 1
+
+    closest_ghost = max(min(map(lambda g: util.manhattanDistance(position, g), ghost_poses)), 1)
+
+    return currentGameState.getScore() - (2 * (1 / closest_ghost)) + (1 / closest_food)
 
 
 # Abbreviation
