@@ -165,8 +165,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         v = MIN_INT
         for successor in map(lambda a: state.generateSuccessor(agent, a), state.getLegalActions(agent)):
             next_agent = (agent + 1) % state.getNumAgents()
-            next_depth = depth + 1
-            v = max(v, self.value(successor, next_agent, next_depth))
+            v = max(v, self.value(successor, next_agent, depth))
         return v
 
     def min_value(self, state, agent, depth):
