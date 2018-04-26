@@ -186,8 +186,51 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.alpha_beta_minimax(gameState)
+
+    def alpha_beta_minimax(self, state):
+        best_value, best_action = self.value(state, PACMAN_AGENT, 0, MIN_INT, MAX_INT)
+
+        return best_action
+
+    def is_terminal_state(self, state, depth):
+        return depth >= self.depth or state.isWin() or state.isLose()
+
+    def value(self, state, agent, depth, alpha, beta):
+        if self.is_terminal_state(state, depth):
+            return self.evaluationFunction(state), None
+
+        if agent == PACMAN_AGENT:
+            return self.max_value(state, agent, depth, alpha, beta)
+        else:
+            return self.min_value(state, agent, depth, alpha, beta)
+
+    def max_value(self, state, agent, depth, alpha, beta):
+        v = MIN_INT
+        a = None
+        for successor, action in map(lambda act: (state.generateSuccessor(agent, act), act),
+                                     state.getLegalActions(agent)):
+            next_agent = (agent + 1) % state.getNumAgents()
+            v, a = max((v, a), (self.value(successor, next_agent, depth, alpha, beta)[0], action),
+                       key=lambda item: item[0])
+            if v > beta:
+                return v, a
+            alpha = max(alpha, v)
+        return v, a
+
+    def min_value(self, state, agent, depth, alpha, beta):
+        v = MAX_INT
+        a = None
+        for successor, action in map(lambda act: (state.generateSuccessor(agent, act), act),
+                                     state.getLegalActions(agent)):
+            next_agent = (agent + 1) % state.getNumAgents()
+            next_depth = depth + 1 if next_agent == PACMAN_AGENT else depth
+            v, a = min((v, a), (self.value(successor, next_agent, next_depth, alpha, beta)[0], action),
+                       key=lambda item: item[0])
+            if v < alpha:
+                return v, a
+            beta = min(beta, v)
+        return v, a
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
