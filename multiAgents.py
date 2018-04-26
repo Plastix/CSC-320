@@ -142,11 +142,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         next_agent = 1 % state.getNumAgents()
         legal_actions = state.getLegalActions(PACMAN_AGENT)
         depth = 0
-        sorted_moves = sorted(
+        best_value, best_action = max(
             map(lambda a: (self.value(state.generateSuccessor(PACMAN_AGENT, a), next_agent, depth), a), legal_actions),
             key=lambda item: item[0])
-
-        best_value, best_action = sorted_moves.pop()
         return best_action
 
     def is_terminal_state(self, state, depth):
