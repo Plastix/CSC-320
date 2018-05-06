@@ -22,20 +22,21 @@
 # Abbeel in Spring 2013.
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
 
-import testClasses
-import busters
-import layout
-import bustersAgents
-from game import Agent
-from game import Actions
-from game import Directions
-import random
-import time
-import util
-import json
-import re
 import copy
+import random
+import re
+import time
+
+import busters
+import bustersAgents
+import layout
+import testClasses
+import util
+from game import Actions
+from game import Agent
+from game import Directions
 from util import manhattanDistance
+
 
 class GameScoreTest(testClasses.TestCase):
 
@@ -53,17 +54,20 @@ class GameScoreTest(testClasses.TestCase):
         self.elapse_enable = self.testDict['elapse'] == 'True'
 
     def execute(self, grades, moduleDict, solutionDict):
-        ghosts = [SeededRandomGhostAgent(i) for i in range(1,self.numGhosts+1)]
-        pac = bustersAgents.GreedyBustersAgent(0, inference = self.inference, ghostAgents = ghosts, observeEnable = self.observe_enable, elapseTimeEnable = self.elapse_enable)
-        #if self.inference == "ExactInference":
+        ghosts = [SeededRandomGhostAgent(i) for i in range(1, self.numGhosts + 1)]
+        pac = bustersAgents.GreedyBustersAgent(0, inference=self.inference, ghostAgents=ghosts,
+                                               observeEnable=self.observe_enable, elapseTimeEnable=self.elapse_enable)
+        # if self.inference == "ExactInference":
         #    pac.inferenceModules = [moduleDict['inference'].ExactInference(a) for a in ghosts]
-        #else:
+        # else:
         #    print("Error inference type %s -- not implemented" % self.inference)
         #    return
 
-        stats = run(self.layout_str, pac, ghosts, self.question.getDisplay(), nGames=self.numRuns, maxMoves=self.maxMoves, quiet = False)
+        stats = run(self.layout_str, pac, ghosts, self.question.getDisplay(), nGames=self.numRuns,
+                    maxMoves=self.maxMoves, quiet=False)
         aboveCount = [s >= self.min_score for s in stats['scores']].count(True)
-        msg = "%s) Games won on %s with score above %d: %d/%d" % (self.layout_name, grades.currentQuestion, self.min_score, aboveCount, self.numRuns)
+        msg = "%s) Games won on %s with score above %d: %d/%d" % (
+        self.layout_name, grades.currentQuestion, self.min_score, aboveCount, self.numRuns)
         grades.addMessage(msg)
         if aboveCount >= self.numWinsForCredit:
             grades.assignFullCredit()
@@ -73,11 +77,13 @@ class GameScoreTest(testClasses.TestCase):
 
     def writeSolution(self, moduleDict, filePath):
         handle = open(filePath, 'w')
-        handle.write('# You must win at least %d/10 games with at least %d points' % (self.numWinsForCredit, self.min_score))
+        handle.write(
+            '# You must win at least %d/10 games with at least %d points' % (self.numWinsForCredit, self.min_score))
         handle.close()
 
     def createPublicVersion(self):
         pass
+
 
 class ZeroWeightTest(testClasses.TestCase):
 
@@ -95,16 +101,17 @@ class ZeroWeightTest(testClasses.TestCase):
     def execute(self, grades, moduleDict, solutionDict):
         random.seed(self.seed)
         inferenceFunction = getattr(moduleDict['inference'], self.inference)
-        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts+1)]
+        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts + 1)]
         if self.inference == 'MarginalInference':
             moduleDict['inference'].jointInference = moduleDict['inference'].JointParticleFilter()
         disp = self.question.getDisplay()
-        pac = ZeroWeightAgent(inferenceFunction, ghosts, grades, self.seed, disp, elapse=self.elapse_enable, observe=self.observe_enable)
+        pac = ZeroWeightAgent(inferenceFunction, ghosts, grades, self.seed, disp, elapse=self.elapse_enable,
+                              observe=self.observe_enable)
         if self.inference == "ParticleFilter":
             for pfilter in pac.inferenceModules: pfilter.setNumParticles(5000)
         elif self.inference == "MarginalInference":
             moduleDict['inference'].jointInference.setNumParticles(5000)
-        run(self.layout_str, pac, ghosts, disp, maxMoves = self.maxMoves)
+        run(self.layout_str, pac, ghosts, disp, maxMoves=self.maxMoves)
         if pac.getReset():
             grades.addMessage('%s) successfully handled all weights = 0' % grades.currentQuestion)
             return self.testPass(grades)
@@ -114,12 +121,14 @@ class ZeroWeightTest(testClasses.TestCase):
 
     def writeSolution(self, moduleDict, filePath):
         handle = open(filePath, 'w')
-        handle.write('# This test checks that you successfully handle the case when all particle weights are set to 0\n')
+        handle.write(
+            '# This test checks that you successfully handle the case when all particle weights are set to 0\n')
         handle.close()
 
     def createPublicVersion(self):
         self.testDict['seed'] = '188'
         self.seed = 188
+
 
 class DoubleInferenceAgentTest(testClasses.TestCase):
 
@@ -148,19 +157,20 @@ class DoubleInferenceAgentTest(testClasses.TestCase):
 
         inferenceFunction = getattr(moduleDict['inference'], self.inference)
 
-        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts+1)]
+        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts + 1)]
         if self.inference == 'MarginalInference':
             moduleDict['inference'].jointInference = moduleDict['inference'].JointParticleFilter()
 
         disp = self.question.getDisplay()
-        pac = DoubleInferenceAgent(inferenceFunction, moves, ghosts, grades, self.seed, disp, elapse=self.elapse, observe=self.observe, L2Tolerance=self.L2Tolerance, checkUniform = self.checkUniform)
+        pac = DoubleInferenceAgent(inferenceFunction, moves, ghosts, grades, self.seed, disp, elapse=self.elapse,
+                                   observe=self.observe, L2Tolerance=self.L2Tolerance, checkUniform=self.checkUniform)
         if self.inference == "ParticleFilter":
             for pfilter in pac.inferenceModules: pfilter.setNumParticles(5000)
         elif self.inference == "MarginalInference":
             moduleDict['inference'].jointInference.setNumParticles(5000)
         run(self.layout_str, pac, ghosts, disp, maxMoves=self.maxMoves)
         msg = self.errorMsg % pac.errors
-        grades.addMessage(("%s) " % (grades.currentQuestion))+msg)
+        grades.addMessage(("%s) " % (grades.currentQuestion)) + msg)
         if pac.errors == 0:
             grades.addPoints(2)
             return self.testPass(grades)
@@ -173,7 +183,7 @@ class DoubleInferenceAgentTest(testClasses.TestCase):
             self.inference = 'ExactInference'  # use exact inference to generate solution
         inferenceFunction = getattr(moduleDict['inference'], self.inference)
 
-        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts+1)]
+        ghosts = [globals()[self.ghost](i) for i in range(1, self.numGhosts + 1)]
         if self.inference == 'MarginalInference':
             moduleDict['inference'].jointInference = moduleDict['inference'].JointParticleFilter()
             moduleDict['inference'].jointInference.setNumParticles(5000)
@@ -200,35 +210,37 @@ class DoubleInferenceAgentTest(testClasses.TestCase):
         self.testDict['seed'] = '188'
         self.seed = 188
 
-def run(layout_str, pac, ghosts, disp, nGames = 1, name = 'games', maxMoves=-1, quiet = True):
+
+def run(layout_str, pac, ghosts, disp, nGames=1, name='games', maxMoves=-1, quiet=True):
     "Runs a few games and outputs their statistics."
 
     starttime = time.time()
     lay = layout.Layout(layout_str)
 
-    #print('*** Running %s on' % name, layname,'%d time(s).' % nGames)
+    # print('*** Running %s on' % name, layname,'%d time(s).' % nGames)
     games = busters.runGames(lay, pac, ghosts, disp, nGames, maxMoves)
 
-    #print('*** Finished running %s on' % name, layname, 'after %d seconds.' % (time.time() - starttime))
+    # print('*** Finished running %s on' % name, layname, 'after %d seconds.' % (time.time() - starttime))
 
     stats = {'time': time.time() - starttime, \
-      'wins': [g.state.isWin() for g in games].count(True), \
-      'games': games, 'scores': [g.state.getScore() for g in games]}
+             'wins': [g.state.isWin() for g in games].count(True), \
+             'games': games, 'scores': [g.state.getScore() for g in games]}
     statTuple = (stats['wins'], len(games), sum(stats['scores']) * 1.0 / len(games))
     if not quiet:
         print('*** Won %d out of %d games. Average score: %f ***' % statTuple)
     return stats
 
+
 class InferenceAgent(bustersAgents.BustersAgent):
     "Tracks ghosts and compares to reference inference modules, while moving randomly"
 
-    def __init__( self, inference, ghostAgents, seed, elapse=True, observe=True, burnIn=0):
+    def __init__(self, inference, ghostAgents, seed, elapse=True, observe=True, burnIn=0):
         self.inferenceModules = [inference(a) for a in ghostAgents]
         self.elapse = elapse
         self.observe = observe
         self.burnIn = burnIn
         self.numMoves = 0
-        #self.rand = rand
+        # self.rand = rand
         # list of tuples (move_num, move, [dist_1, dist_2, ...])
         self.answerList = []
         self.seed = seed
@@ -236,7 +248,7 @@ class InferenceAgent(bustersAgents.BustersAgent):
     def final(self, gameState):
         distributionList = []
         self.numMoves += 1
-        for index,inf in enumerate(self.inferenceModules):
+        for index, inf in enumerate(self.inferenceModules):
             if self.observe:
                 inf.observeState(gameState)
             self.ghostBeliefs[index] = inf.getBeliefDistribution()
@@ -250,13 +262,13 @@ class InferenceAgent(bustersAgents.BustersAgent):
         for inference in self.inferenceModules: inference.initialize(gameState)
         self.ghostBeliefs = [inf.getBeliefDistribution() for inf in self.inferenceModules]
         self.firstMove = True
-        self.answerList.append((self.numMoves,None,copy.deepcopy(self.ghostBeliefs)))
+        self.answerList.append((self.numMoves, None, copy.deepcopy(self.ghostBeliefs)))
 
     def getAction(self, gameState):
         "Updates beliefs, then chooses an action based on updated beliefs."
         distributionList = []
         self.numMoves += 1
-        for index,inf in enumerate(self.inferenceModules):
+        for index, inf in enumerate(self.inferenceModules):
             if self.elapse:
                 if not self.firstMove: inf.elapseTime(gameState)
             self.firstMove = False
@@ -274,7 +286,7 @@ class InferenceAgent(bustersAgents.BustersAgent):
 class ZeroWeightAgent(bustersAgents.BustersAgent):
     "Tracks ghosts and compares to reference inference modules, while moving randomly"
 
-    def __init__( self, inference, ghostAgents, grades, seed, disp, elapse=True, observe=True ):
+    def __init__(self, inference, ghostAgents, grades, seed, disp, elapse=True, observe=True):
         self.inferenceModules = [inference(a) for a in ghostAgents]
         self.elapse = elapse
         self.observe = observe
@@ -297,7 +309,7 @@ class ZeroWeightAgent(bustersAgents.BustersAgent):
         "Updates beliefs, then chooses an action based on updated beliefs."
         newBeliefs = [None] * len(self.inferenceModules)
         self.numMoves += 1
-        for index,inf in enumerate(self.inferenceModules):
+        for index, inf in enumerate(self.inferenceModules):
             if self.elapse:
                 if not self.firstMove: inf.elapseTime(gameState)
             self.firstMove = False
@@ -325,7 +337,8 @@ class ZeroWeightAgent(bustersAgents.BustersAgent):
 class DoubleInferenceAgent(bustersAgents.BustersAgent):
     "Tracks ghosts and compares to reference inference modules, while moving randomly"
 
-    def __init__( self, inference, refSolution, ghostAgents, grades, seed, disp, elapse=True, observe=True, L2Tolerance=0.2, burnIn=0, checkUniform = False):
+    def __init__(self, inference, refSolution, ghostAgents, grades, seed, disp, elapse=True, observe=True,
+                 L2Tolerance=0.2, burnIn=0, checkUniform=False):
         self.inferenceModules = [inference(a) for a in ghostAgents]
         self.refSolution = refSolution
         self.elapse = elapse
@@ -341,8 +354,8 @@ class DoubleInferenceAgent(bustersAgents.BustersAgent):
 
     def final(self, gameState):
         self.numMoves += 1
-        moveNum,action,dists = self.refSolution[self.numMoves]
-        for index,inf in enumerate(self.inferenceModules):
+        moveNum, action, dists = self.refSolution[self.numMoves]
+        for index, inf in enumerate(self.inferenceModules):
             if self.observe:
                 inf.observeState(gameState)
             self.ghostBeliefs[index] = inf.getBeliefDistribution()
@@ -356,8 +369,8 @@ class DoubleInferenceAgent(bustersAgents.BustersAgent):
     def registerInitialState(self, gameState):
         "Initializes beliefs and inference modules"
         for inference in self.inferenceModules: inference.initialize(gameState)
-        moveNum,action,dists = self.refSolution[self.numMoves]
-        for index,inf in enumerate(self.inferenceModules):
+        moveNum, action, dists = self.refSolution[self.numMoves]
+        for index, inf in enumerate(self.inferenceModules):
             self.distCompare(inf.getBeliefDistribution(), dists[index])
         self.ghostBeliefs = [inf.getBeliefDistribution() for inf in self.inferenceModules]
         self.firstMove = True
@@ -365,8 +378,8 @@ class DoubleInferenceAgent(bustersAgents.BustersAgent):
     def getAction(self, gameState):
         "Updates beliefs, then chooses an action based on updated beliefs."
         self.numMoves += 1
-        moveNum,action,dists = self.refSolution[self.numMoves]
-        for index,inf in enumerate(self.inferenceModules):
+        moveNum, action, dists = self.refSolution[self.numMoves]
+        for index, inf in enumerate(self.inferenceModules):
             if self.elapse:
                 if not self.firstMove: inf.elapseTime(gameState)
             self.firstMove = False
@@ -397,15 +410,19 @@ class DoubleInferenceAgent(bustersAgents.BustersAgent):
                 t = (self.grades.currentQuestion, self.numMoves, l2)
                 summary = "%s) Distribution deviated at move %d by %0.4f (squared norm) from the correct answer.\n" % t
                 header = '%10s%5s%-25s%-25s\n' % ('key:', '', 'student', 'reference')
-                detail = '\n'.join(map(lambda x: '%9s:%5s%-25s%-25s' % (x, '', dist[x], refDist[x]), set(list(dist.keys()) + list(refDist.keys()))))
+                detail = '\n'.join(map(lambda x: '%9s:%5s%-25s%-25s' % (x, '', dist[x], refDist[x]),
+                                       set(list(dist.keys()) + list(refDist.keys()))))
                 self.grades.fail('%s%s%s' % (summary, header, detail))
             self.errors += 1
         # check for uniform distribution if necessary
         if self.checkUniform:
             if abs(max(dist.values()) - max(refDist.values())) > .0025:
                 if self.errors == 0:
-                    self.grades.fail('%s) Distributions do not have the same max value and are therefore not uniform.\n\tstudent max: %f\n\treference max: %f' % (self.grades.currentQuestion, max(dist.values()), max(refDist.values())))
+                    self.grades.fail(
+                        '%s) Distributions do not have the same max value and are therefore not uniform.\n\tstudent max: %f\n\treference max: %f' % (
+                        self.grades.currentQuestion, max(dist.values()), max(refDist.values())))
                     self.errors += 1
+
 
 class SeededRandomGhostAgent(Agent):
     def __init__(self, index):
@@ -413,21 +430,21 @@ class SeededRandomGhostAgent(Agent):
 
     def getAction(self, state):
         dist = util.Counter()
-        for a in state.getLegalActions( self.index ): dist[a] = 1.0
+        for a in state.getLegalActions(self.index): dist[a] = 1.0
         dist.normalize()
         if len(dist) == 0:
             return Directions.STOP
         else:
-            action = self.sample( dist )
+            action = self.sample(dist)
             return action
 
-    def getDistribution( self, state ):
+    def getDistribution(self, state):
         dist = util.Counter()
-        for a in state.getLegalActions( self.index ): dist[a] = 1.0
+        for a in state.getLegalActions(self.index): dist[a] = 1.0
         dist.normalize()
         return dist
 
-    def sample(self, distribution, values = None):
+    def sample(self, distribution, values=None):
         if type(distribution) == util.Counter:
             items = list(distribution.items())
             # Order possible actions in fixed order comparable to
@@ -439,11 +456,12 @@ class SeededRandomGhostAgent(Agent):
         if sum(distribution) != 1:
             distribution = normalize(distribution)
         choice = random.random()
-        i, total= 0, distribution[0]
+        i, total = 0, distribution[0]
         while choice > total:
             i += 1
             total += distribution[i]
         return values[i]
+
 
 class GoSouthAgent(Agent):
     def __init__(self, index):
@@ -451,7 +469,7 @@ class GoSouthAgent(Agent):
 
     def getAction(self, state):
         dist = util.Counter()
-        for a in state.getLegalActions( self.index ):
+        for a in state.getLegalActions(self.index):
             dist[a] = 1.0
         if Directions.SOUTH in dist.keys():
             dist[Directions.SOUTH] *= 2
@@ -459,21 +477,21 @@ class GoSouthAgent(Agent):
         if len(dist) == 0:
             return Directions.STOP
         else:
-            action = self.sample( dist )
+            action = self.sample(dist)
             return action
 
-    def getDistribution( self, state ):
+    def getDistribution(self, state):
         dist = util.Counter()
-        for a in state.getLegalActions( self.index ):
+        for a in state.getLegalActions(self.index):
             dist[a] = 1.0
         if Directions.SOUTH in dist.keys():
             dist[Directions.SOUTH] *= 2
         dist.normalize()
         return dist
 
-    def sample(self, distribution, values = None):
+    def sample(self, distribution, values=None):
         if type(distribution) == util.Counter:
-            #items = distribution.items()
+            # items = distribution.items()
             items = list(distribution.items())
             # Order possible actions in fixed order comparable to
             # Python2 order,which the autograder relies on. KS
@@ -484,15 +502,17 @@ class GoSouthAgent(Agent):
         if sum(distribution) != 1:
             distribution = util.normalize(distribution)
         choice = random.random()
-        i, total= 0, distribution[0]
+        i, total = 0, distribution[0]
         while choice > total:
             i += 1
             total += distribution[i]
         return values[i]
 
-class DispersingSeededGhost( Agent):
+
+class DispersingSeededGhost(Agent):
     "Chooses an action that distances the ghost from the other ghosts with probability spreadProb."
-    def __init__( self, index, spreadProb=0.5):
+
+    def __init__(self, index, spreadProb=0.5):
         self.index = index
         self.spreadProb = spreadProb
 
@@ -501,29 +521,29 @@ class DispersingSeededGhost( Agent):
         if len(dist) == 0:
             return Directions.STOP
         else:
-            action = self.sample( dist )
+            action = self.sample(dist)
             return action
 
-    def getDistribution( self, state ):
-        ghostState = state.getGhostState( self.index )
-        legalActions = state.getLegalActions( self.index )
-        pos = state.getGhostPosition( self.index )
+    def getDistribution(self, state):
+        ghostState = state.getGhostState(self.index)
+        legalActions = state.getLegalActions(self.index)
+        pos = state.getGhostPosition(self.index)
         isScared = ghostState.scaredTimer > 0
 
         speed = 1
         if isScared: speed = 0.5
-        actionVectors = [Actions.directionToVector( a, speed ) for a in legalActions]
-        newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
+        actionVectors = [Actions.directionToVector(a, speed) for a in legalActions]
+        newPositions = [(pos[0] + a[0], pos[1] + a[1]) for a in actionVectors]
 
         # get other ghost positions
-        others = [i for i in range(1,state.getNumAgents()) if i != self.index]
+        others = [i for i in range(1, state.getNumAgents()) if i != self.index]
         for a in others: assert state.getGhostState(a) != None, "Ghost position unspecified in state!"
         otherGhostPositions = [state.getGhostPosition(a) for a in others if state.getGhostPosition(a)[1] > 1]
 
         # for each action, get the sum of inverse squared distances to the other ghosts
         sumOfDistances = []
         for pos in newPositions:
-            sumOfDistances.append( sum([(1+manhattanDistance(pos, g))**(-2) for g in otherGhostPositions]) )
+            sumOfDistances.append(sum([(1 + manhattanDistance(pos, g)) ** (-2) for g in otherGhostPositions]))
 
         bestDistance = min(sumOfDistances)
         numBest = [bestDistance == dist for dist in sumOfDistances].count(True)
@@ -533,9 +553,9 @@ class DispersingSeededGhost( Agent):
             distribution[action] += (1 - self.spreadProb) / len(legalActions)
         return distribution
 
-    def sample(self, distribution, values = None):
+    def sample(self, distribution, values=None):
         if type(distribution) == util.Counter:
-            #items = distribution.items()
+            # items = distribution.items()
             items = list(distribution.items())
             # Order possible actions in fixed order comparable to
             # Python2 order,which the autograder relies on. KS
@@ -546,7 +566,7 @@ class DispersingSeededGhost( Agent):
         if sum(distribution) != 1:
             distribution = util.normalize(distribution)
         choice = random.random()
-        i, total= 0, distribution[0]
+        i, total = 0, distribution[0]
         while choice > total:
             i += 1
             total += distribution[i]
