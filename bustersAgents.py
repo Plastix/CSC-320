@@ -127,7 +127,7 @@ class BustersKeyboardAgent(BustersAgent, KeyboardAgent):
 
 
 from distanceCalculator import Distancer
-from game import Directions
+from game import Directions, Actions
 
 
 class GreedyBustersAgent(BustersAgent):
@@ -166,11 +166,15 @@ class GreedyBustersAgent(BustersAgent):
              indices into this list should be 1 less than indices into the
              gameState.getLivingGhosts() list.
         """
-        pacmanPosition = gameState.getPacmanPosition()
+        pacman_position = gameState.getPacmanPosition()
         legal = [a for a in gameState.getLegalPacmanActions()]
-        livingGhosts = gameState.getLivingGhosts()
-        livingGhostPositionDistributions = \
+        living_ghosts = gameState.getLivingGhosts()
+        living_ghost_position_distributions = \
             [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
-             if livingGhosts[i + 1]]
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+             if living_ghosts[i + 1]]
+
+        closest_ghost = min(map(lambda belief: belief.argMax(), living_ghost_position_distributions),
+                            key=lambda pos: self.distancer.getDistance(pacman_position, pos))
+
+        return min(legal,
+                   key=lambda a: self.distancer.getDistance(Actions.getSuccessor(pacman_position, a), closest_ghost))
