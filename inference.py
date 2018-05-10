@@ -10,7 +10,6 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-import random
 
 import busters
 import game
@@ -245,7 +244,6 @@ class ParticleFilter(InferenceModule):
         InferenceModule.__init__(self, ghostAgent)
         self.setNumParticles(numParticles)
         self.particles = []
-        self.uniform_prob = 1 / self.numParticles
 
     def setNumParticles(self, numParticles):
         self.numParticles = numParticles
@@ -262,7 +260,9 @@ class ParticleFilter(InferenceModule):
         Storing your particles as a Counter (where there could be an associated
         weight with each position) is incorrect and may produce errors.
         """
-        self.particles = [(random.choice(self.legalPositions), self.uniform_prob) for _ in range(self.numParticles)]
+        num_legal = len(self.legalPositions)
+        for i in range(self.numParticles):
+            self.particles.append(self.legalPositions[i % num_legal])
 
     def observe(self, observation, gameState):
         """
@@ -296,20 +296,19 @@ class ParticleFilter(InferenceModule):
         pacman_position = gameState.getPacmanPosition()
 
         if noisy_distance is None:
-            self.particles = [(self.getJailPosition(), self.uniform_prob)] * self.numParticles
+            self.particles = [self.getJailPosition()] * self.numParticles
         else:
             weights = util.Counter()
-            for particle, prob in self.particles:
+            for particle in self.particles:
                 true_dist = util.manhattanDistance(pacman_position, particle)
-                weights[particle] = emission_model[true_dist] * prob
+                weights[particle] += emission_model[true_dist]
 
             if weights.totalCount() == 0:
                 self.initializeUniformly(gameState)
             else:
                 new_particles = []
                 for _ in range(self.numParticles):
-                    sample = util.sample(weights)
-                    new_particles.append((sample, weights[sample]))
+                    new_particles.append(util.sample(weights))
                 self.particles = new_particles
 
     def elapseTime(self, gameState):
@@ -328,10 +327,10 @@ class ParticleFilter(InferenceModule):
         """
 
         new_particles = []
-        for particle, prob in self.particles:
+        for particle in self.particles:
             new_pos_dist = self.getPositionDistribution(self.setGhostPosition(gameState, particle))
             sample = util.sample(new_pos_dist)
-            new_particles.append((sample, new_pos_dist[sample]))
+            new_particles.append(sample)
         self.particles = new_particles
 
     def getBeliefDistribution(self):
@@ -342,8 +341,8 @@ class ParticleFilter(InferenceModule):
         Counter object)
         """
         beliefs = util.Counter()
-        for particle, prob in self.particles:
-            beliefs[particle] = prob
+        for particle in self.particles:
+            beliefs[particle] += 1
         beliefs.normalize()
         return beliefs
 
