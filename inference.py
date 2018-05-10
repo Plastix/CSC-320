@@ -10,7 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+import random
 
 import busters
 import game
@@ -242,8 +242,9 @@ class ParticleFilter(InferenceModule):
     """
 
     def __init__(self, ghostAgent, numParticles=300):
-        InferenceModule.__init__(self, ghostAgent);
+        InferenceModule.__init__(self, ghostAgent)
         self.setNumParticles(numParticles)
+        self.particles = []
 
     def setNumParticles(self, numParticles):
         self.numParticles = numParticles
@@ -260,7 +261,7 @@ class ParticleFilter(InferenceModule):
         Storing your particles as a Counter (where there could be an associated
         weight with each position) is incorrect and may produce errors.
         """
-        "*** YOUR CODE HERE ***"
+        self.particles = [random.choice(self.legalPositions) for _ in range(self.numParticles)]
 
     def observe(self, observation, gameState):
         """
@@ -289,11 +290,22 @@ class ParticleFilter(InferenceModule):
         You may also want to use util.manhattanDistance to calculate the
         distance between a particle and Pacman's position.
         """
-        noisyDistance = observation
-        emissionModel = busters.getObservationDistribution(noisyDistance)
-        pacmanPosition = gameState.getPacmanPosition()
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        noisy_distance = observation
+        emission_model = busters.getObservationDistribution(noisy_distance)
+        pacman_position = gameState.getPacmanPosition()
+
+        if noisy_distance is None:
+            self.particles = [self.getJailPosition()] * self.numParticles
+        else:
+            weights = util.Counter()
+            for particle in self.particles:
+                true_dist = util.manhattanDistance(pacman_position, particle)
+                weights[particle] = emission_model[true_dist]
+
+            if weights.totalCount() == 0:
+                self.initializeUniformly(gameState)
+            else:
+                self.particles = [util.sample(weights) for _ in range(self.numParticles)]
 
     def elapseTime(self, gameState):
         """
@@ -309,8 +321,13 @@ class ParticleFilter(InferenceModule):
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        new_particles = []
+        for particle in self.particles:
+            new_pos_dist = self.getPositionDistribution(self.setGhostPosition(gameState, particle))
+            sample = util.sample(new_pos_dist)
+            new_particles.append(sample)
+        self.particles = new_particles
 
     def getBeliefDistribution(self):
         """
@@ -319,8 +336,11 @@ class ParticleFilter(InferenceModule):
         essentially converts a list of particles into a belief distribution (a
         Counter object)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        beliefs = util.Counter()
+        for particle in self.particles:
+            beliefs[particle] = 1
+        beliefs.normalize()
+        return beliefs
 
 
 class MarginalInference(InferenceModule):
@@ -384,7 +404,7 @@ class JointParticleFilter:
 
         You may find the `itertools` package helpful. Look at the
         `itertools.product` function to get an implementation of the
-        Cartesian product. 
+        Cartesian product.
 
         Note: If you use itertools, note that in Python3 the itertool
         functions return iterator objects instead of lists. You can
