@@ -331,7 +331,8 @@ class ParticleFilter(InferenceModule):
         for particle, prob in self.particles:
             new_pos_dist = self.getPositionDistribution(self.setGhostPosition(gameState, particle))
             sample = util.sample(new_pos_dist)
-            new_particles.append((sample, new_pos_dist[sample] * prob))
+            new_particles.append((sample, new_pos_dist[sample]))
+        self.particles = new_particles
 
     def getBeliefDistribution(self):
         """
