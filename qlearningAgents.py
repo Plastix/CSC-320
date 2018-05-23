@@ -49,10 +49,6 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         q = (state, action)
-
-        if q not in self.values:
-            return 0.0
-
         return self.values[q]
 
     def computeValueFromQValues(self, state):
@@ -64,10 +60,10 @@ class QLearningAgent(ReinforcementAgent):
         """
         actions = self.getLegalActions(state)
 
-        if not actions:
+        if len(actions) == 0:
             return 0.0
 
-        return max([self.getQValue(state, a) for a in actions])
+        return max(self.getQValue(state, a) for a in actions)
 
     def computeActionFromQValues(self, state):
         """
@@ -77,11 +73,19 @@ class QLearningAgent(ReinforcementAgent):
         """
         actions = self.getLegalActions(state)
 
-        if not actions:
+        if len(actions) == 0:
             return None
 
-        q_values = [(self.getQValue(state, a), a) for a in actions]
-        return max(q_values, key=lambda item: item[0])[1]
+        best_a = None
+        best = 0
+
+        for a in actions:
+            q = self.getQValue(state, a)
+            if q > best or best_a is None:
+                best = q
+                best_a = a
+
+        return best_a
 
     def getAction(self, state):
         """
@@ -111,10 +115,15 @@ class QLearningAgent(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
-        q = (state, action)
-        old_q = self.getQValue(state, action)
-        next_max_q = self.computeValueFromQValues(nextState)
-        self.values[q] = ((1 - self.alpha) * old_q) + (self.alpha * (reward + (self.discount * next_max_q)))
+        old_q = (1 - self.alpha) * self.getQValue(state, action)
+
+        actions = self.getLegalActions(nextState)
+        if len(actions) == 0:
+            next_max_q = reward
+        else:
+            next_max_q = reward + self.discount * max(self.getQValue(nextState, a) for a in actions)
+        next_max_q = self.alpha * next_max_q
+        self.values[(state, action)] = old_q + next_max_q
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
