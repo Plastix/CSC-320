@@ -10,6 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
+import sys
 
 import util
 from learningAgents import ValueEstimationAgent
@@ -49,9 +50,8 @@ class ValueIterationAgent(ValueEstimationAgent):
                 if self.mdp.isTerminal(state):
                     new_values[state] = 0
                 else:
-                    best = 0
+                    best = -sys.maxsize - 1
                     actions = mdp.getPossibleActions(state)
-                    # Sum over all actions
                     for action in actions:
                         q_value = self.computeQValueFromValues(state, action)
                         best = max(best, q_value)
