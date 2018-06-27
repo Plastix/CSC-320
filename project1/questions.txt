@@ -1,0 +1,48 @@
+Aidan Pieper
+CSC 320
+4/7/18
+
+Question 1: What kind of agents are the GoWestAgent and the LeftTurnAgent? Simple reflex agents, model-based reflex
+agents, ...? Explain. (Write down your answers in an electronic document that you can submit with your code.)
+
+Both of these agents are simple reflex agents. The GoWestAgent only uses the current precept. It does not remember any
+information about the world. This agent goes west until it is obstructed and then stops. Similarly, the LeftTurnAgent
+turns left at every opportunity and only uses the current precept to make sure that it can turn left.
+
+
+
+Question 2: Do the GoWestAgent and the LeftTurnAgent behave rationally in this kind of environment? (Remember, the
+erformance measure is to eat as much food as possible.)
+
+Neither GoWestAgent nor LeftTurnAgent are rational. With rectangular rooms, GoWestAgent will hit the left wall stop and
+will not eat anymore food. Without any obstacles, LeftTurnAgent will move the pacman in a circle (continuously turning
+left) which will eat four food. Both of these agents will not explore the entire room and do not eat all the food.
+
+
+
+Question 3: Is it possible to build a deterministic simple reflex agent that eats all food in this room (obstacles)?
+
+Yes. The RectangularRoomCleaner agent may get stuck in a loop depending on the placement of the obstacles in the room.
+We can randomize some of the actions in order to avoid these looping patterns. One such agent could randomly pick
+between all legal moves at every timestamp. Given enough time, it will eat all the food in the room but is not very
+efficient.
+
+
+
+Question 4: Describe an environment in which your randomized agent would perform poorly.
+
+My randomized agent moves straight if legal with 50% chance. Otherwise it randomly selects between the remaining legal
+moves without stopping. This agent performs badly on an environment with many obstacles and narrow passage ways such
+as mediumSearch. Since it hits walls frequently in this environment it is randomly choosing actions which leads to a lot
+of backtracking.
+
+
+
+Question 5: Is your agent rational given the above performance measure? Is it rational if we modify the performance to
+penalize each movement?
+
+My model-based agent aims to explore every unexplored cell of the map which it can access from the start location. It
+does this by moving in a depth-first search pattern and begins backtracking once it hits a dead end with all explored
+neighbor cells. With respect to the original performance metric, this is agent is rational because it will eventually
+find all food and not get stuck in any loops. If the performance metric penalizes each movement then this agent is no
+longer rational because it may do a lot of needless backtracking and may not taken the shortest path backwards.

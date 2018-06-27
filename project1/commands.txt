@@ -1,0 +1,7 @@
+python3 pacman.py
+python3 pacman.py --layout smallClassic
+python3 pacman.py --pacman GoWestAgent
+python3 pacman.py --pacman LeftTurnAgent
+python3 pacman.py -h
+python3 pacman.py --layout rectangularRoom-1 --pacman GoWestAgent
+python3 pacman.py --layout rectangularRoom-1 --pacman LeftTurnAgent
